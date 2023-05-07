@@ -1,5 +1,9 @@
 const router = require("express").Router();
 
-// tu mają byc routy
+const usersRouter = require("./users");
+const transactionsRouter = require("./transactions");
+
+router.use("/api/users", usersRouter);
+router.use("/api/users", transactionsRouter);
 
 module.exports = router;
