@@ -35,6 +35,7 @@ router.get("/logout", auth, async (req, res) => {
     const { code, message } = await logoutUser(req.body.user.id);
     res.status(code).json(message);
   } catch (error) {
+    console.log(error);
     res.status(500).json(error);
   }
 });

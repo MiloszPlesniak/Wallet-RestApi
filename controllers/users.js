@@ -80,11 +80,11 @@ const logoutUser = async (id) => {
 
 const currentUser = async (id) => {
   const user = await User.findById(id);
-  console.log(id);
+  const { email, balance } = user;
   if (!user) {
-    return { code: 401, message: "Not authorized" };
+    return { code: 401, message: "Not authorized1" };
   } else {
-    return { code: 200, message: user.email };
+    return { code: 200, message: { email, id, balance } };
   }
 };
 
