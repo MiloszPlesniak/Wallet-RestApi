@@ -4,10 +4,14 @@ const jimp = require("jimp");
 const path = require("path");
 // generowanei id
 const { v4: uuidv4 } = require("uuid");
-const { registerValidate, User, hashPassword } = require("../models/users.js");
+const {
+  registerValidate,
+  loginValidate,
+  User,
+  hashPassword,
+} = require("../models/users.js");
 
 const loginHandler = require("../auth/loginHandler");
-const { log } = require("console");
 
 const getUserByEmail = async (email) => {
   const user = User.findOne({ email });
@@ -18,11 +22,12 @@ const getUserById = async (id) => {
   return user;
 };
 
-const createUser = async (email, password) => {
+const createUser = async (email, password, name) => {
   try {
     const newUser = new User({
       email,
       password: hashPassword(password),
+      name,
       verificationToken: uuidv4(),
     });
     newUser.save();
@@ -37,39 +42,52 @@ const registerUser = async (userData) => {
   if (error) {
     return { code: 400, message: error.details[0].message };
   }
-  const { email, password } = userData;
+  const { email, password, name } = userData;
   if (await getUserByEmail(email)) {
     return { code: 409, message: "Email in use" };
   }
   try {
-    const user = await createUser(email, password);
+    const user = await createUser(email, password, name);
+
     // await sendEmail(
     //     email,
     //     `http://localhost:3000/api/users/verify/${user.verificationToken}`
     // );
-    return { code: 201, message: user };
+    return {
+      code: 201,
+      message: { email: user.email, name: user.name, password: user.password },
+    };
   } catch (error) {
     console.log(error);
   }
 };
 
 const loginUser = async (userData) => {
-  const { error } = registerValidate.validate(userData);
+  const { error } = loginValidate.validate(userData);
   if (error) {
     return { code: 400, message: error.details[0].message };
   }
 
   const { email, password } = userData;
 
-  const user = await getUserByEmail(email);
+  const userCheck = await getUserByEmail(email);
   // if (!user.verify)
   //   return { code: 401, message: "Email has not been verified" };
-  const token = await loginHandler(password, user);
-  if (!user || !token) {
+  const { user, token } = await loginHandler(password, userCheck);
+  if (!userCheck || !token) {
     return { code: 401, message: "Email or password is wrong" };
   } else {
-    await User.findByIdAndUpdate(user._id, { token: token.token });
-    return { code: 200, message: user.email };
+    await User.findByIdAndUpdate(user._id, { token });
+    return {
+      code: 200,
+      message: {
+        email: user.email,
+        passwprd: user.password,
+        name: user.name,
+        token,
+        balance: user.balance,
+      },
+    };
   }
 };
 
