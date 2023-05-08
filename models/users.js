@@ -14,6 +14,10 @@ const users = new Schema({
     type: String,
     required: [true, "Password is required"],
   },
+  name: {
+    type: String,
+    required: [true, "Name is required"],
+  },
   token: {
     type: String,
     default: null,
@@ -30,10 +34,6 @@ const users = new Schema({
     type: Number,
     default: 0.0,
   },
-  name: {
-    type: String,
-    require: [true, "Name is required"],
-  },
 });
 
 const User = mongoose.model("User", users);
@@ -48,9 +48,14 @@ const postRegisterSchema = Joi.object({
   password: Joi.string().min(6).max(50).required(),
   name: Joi.string().min(2).max(50).required(),
 });
+const postLoginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).max(50).required(),
+});
 
 module.exports = {
   registerValidate: postRegisterSchema,
   User,
   hashPassword,
+  loginValidate: postLoginSchema,
 };
