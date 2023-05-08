@@ -26,6 +26,10 @@ const users = new Schema({
     type: String,
     required: [true, "Verify token is required"],
   },
+  balance: {
+    type: Number,
+    default: 0.0,
+  },
 });
 
 const User = mongoose.model("User", users);
