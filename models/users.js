@@ -1,16 +1,47 @@
 const mongoose = require("mongoose");
-// bcrypt do hashowania haseł
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
-// grawatar jest do default avatar
 const gravatar = require("gravatar");
 const Schema = mongoose.Schema;
 
-const users = new Schema({});
+const users = new Schema({
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, "Password is required"],
+  },
+  token: {
+    type: String,
+    default: null,
+  },
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
+    type: String,
+    required: [true, "Verify token is required"],
+  },
+});
 
-const User = mongoose.model("user", users);
+const User = mongoose.model("User", users);
 
-;
+const hashPassword = (password) => {
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
+  return hashedPassword;
+};
+const postRegisterSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).max(50).required(),
+});
 
-
-module.exports = {};
+module.exports = {
+  registerValidate: postRegisterSchema,
+  User,
+  hashPassword,
+};
