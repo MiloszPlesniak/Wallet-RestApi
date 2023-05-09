@@ -24,6 +24,10 @@ const transaction = new Schema({
     type: Number,
     required: [true, "Set amount for transaction"],
   },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "user",
+  },
 });
 
 const Transaction = mongoose.model("Transactions", transaction);
@@ -42,9 +46,13 @@ const editTransactionSchema = Joi.object({
   comment: Joi.string().alphanum().max(25),
   amount: Joi.string(),
 }).or("category", "type", "data", "comment", "amount");
-
+const sortTraactionsSchema = Joi.object({
+  start: Joi.date(),
+  end: Joi.date(),
+});
 module.exports = {
   Transaction,
-  editTransactionSchema,
-  addTransactionSchema,
+  editTransactionValidate: editTransactionSchema,
+  addTransactionValidate: addTransactionSchema,
+  sortTraactionsValidate: sortTraactionsSchema,
 };
