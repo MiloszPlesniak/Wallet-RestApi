@@ -68,7 +68,7 @@ const removeTransaction = async (user, transactionId) => {
   }
 
   await Transaction.findOneAndDelate({ id });
-  return { code: 200, message: "Transaction removed" };
+  return { code: 200, message: transactionId };
 };
 
 const updateTransaction = async (user, data, transactionId) => {
