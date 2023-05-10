@@ -36,8 +36,9 @@ const addTransactionSchema = Joi.object({
   category: Joi.string().alphanum().required(),
   type: Joi.string().valid("+", "-").required(),
   data: Joi.date().required(),
-  comment: Joi.string().alphanum().max(25),
+  comment: Joi.string().alphanum().min(0).max(25),
   amount: Joi.string().required(),
+  owner: Joi.string().required(),
 });
 const editTransactionSchema = Joi.object({
   category: Joi.string().alphanum(),
