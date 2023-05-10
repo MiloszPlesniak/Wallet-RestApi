@@ -22,12 +22,10 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  try {
+ 
     const { code, message } = await loginUser(req.body);
     res.status(code).json(message);
-  } catch (error) {
-    res.status(500).json(error);
-  }
+ 
 });
 
 router.get("/logout", auth, async (req, res) => {

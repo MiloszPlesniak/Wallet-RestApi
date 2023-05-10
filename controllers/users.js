@@ -1,8 +1,3 @@
-const fs = require("fs/promises");
-// obrabianie obrazków
-const jimp = require("jimp");
-const path = require("path");
-// generowanei id
 const { v4: uuidv4 } = require("uuid");
 const {
   registerValidate,
@@ -12,7 +7,7 @@ const {
 } = require("../models/users.js");
 
 const loginHandler = require("../auth/loginHandler");
-const { log } = require("console");
+const { getAllTransactions } = require("../controllers/transaction.js");
 
 const getUserByEmail = async (email) => {
   const user = User.findOne({ email });
@@ -80,7 +75,7 @@ const loginUser = async (userData) => {
     return { code: 401, message: "Email or password is wrong" };
   } else {
     await User.findByIdAndUpdate(user._id, { token });
-    console.log(user);
+    const { balance, income, expense } = await setBalance(user._id);
     return {
       code: 200,
       message: {
@@ -88,7 +83,7 @@ const loginUser = async (userData) => {
         passwprd: user.password,
         name: user.name,
         token,
-        balance: user.balance,
+        balance,
         id: user._id,
       },
     };
@@ -137,8 +132,21 @@ const resendingTheEmail = async (email) => {
   // );
   return { code: 200, message: "Verification email sent" };
 };
+const setBalance = async (owner) => {
+  const { message } = await getAllTransactions(owner);
 
-const setBalance = async (id) => {};
+  let income = 0;
+  let expense = 0;
+  let balance = 0;
+  message.forEach(function (item) {
+    item.type === "+"
+      ? (income = income + Number(item.amount))
+      : (expense = expense + Number(item.amount));
+  });
+  balance = income - expense;
+  console.log({ balance, income, expense });
+  return { balance, income, expense };
+};
 
 module.exports = {
   registerUser,

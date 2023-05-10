@@ -1,6 +1,5 @@
-// const fs = require("fs/promises");
-const { getUserById } = require("../controllers/users.js");
-// const { v4: uuidv4 } = require("uuid");
+// const { getUserById } = require("../controllers/users.js");
+
 const {
   Transaction,
   editTransactionValidate,
@@ -19,11 +18,11 @@ const {
 //   { Leisure: 0 },
 // ];
 
-const getAllTransactions = async (ownerId) => {
-  const allTransaction = await Transaction.find(ownerId);
-  if (allTransaction.length === 0) {
-    return { code: 200, message: "You haven't added any transaction yet" };
-  }
+const getAllTransactions = async (owner) => {
+  const allTransaction = await Transaction.find({ owner });
+  // if (allTransaction.length === 0) {
+  //   return { code: 200, message: "You haven't added any transaction yet" };
+  // }
   return { code: 200, message: allTransaction };
 };
 
@@ -59,13 +58,13 @@ const addTransaction = async (transactionData, user) => {
 
 const removeTransaction = async (user, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  const owner = await getUserById(transaction.id);
+  // const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  if (owner.id !== user.id) {
-    return { code: 400, message: "You are not the owner of this contact" };
-  }
+  // if (owner.id !== user.id) {
+  //   return { code: 400, message: "You are not the owner of this contact" };
+  // }
 
   await Transaction.findOneAndDelate({ id });
   return { code: 200, message: transactionId };
@@ -73,13 +72,13 @@ const removeTransaction = async (user, transactionId) => {
 
 const updateTransaction = async (user, data, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  const owner = await getUserById(transaction.id);
+  // const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  if (owner.id !== user.id) {
-    return { code: 400, message: "You are not the owner of this contact" };
-  }
+  // if (owner.id !== user.id) {
+  //   return { code: 400, message: "You are not the owner of this contact" };
+  // }
   const { error } = editTransactionValidate.validate(data);
   if (error) return { code: 400, message: error.details[0].message };
 
