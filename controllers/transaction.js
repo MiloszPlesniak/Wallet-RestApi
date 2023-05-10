@@ -46,7 +46,7 @@ const addTransaction = async (transactionData, user) => {
       data,
       comment: comment ? comment : "-",
       amount,
-      owner: user._id,
+      owner: user.id,
     });
     transaction.save();
     return { code: 201, message: transaction };
@@ -59,11 +59,11 @@ const addTransaction = async (transactionData, user) => {
 
 const removeTransaction = async (user, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  const owner = await getUserById(transaction._id);
+  const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  if (owner._id !== user._id) {
+  if (owner.id !== user.id) {
     return { code: 400, message: "You are not the owner of this contact" };
   }
 
@@ -73,11 +73,11 @@ const removeTransaction = async (user, transactionId) => {
 
 const updateTransaction = async (user, data, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  const owner = await getUserById(transaction._id);
+  const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  if (owner._id !== user._id) {
+  if (owner.id !== user.id) {
     return { code: 400, message: "You are not the owner of this contact" };
   }
   const { error } = editTransactionValidate.validate(data);
@@ -97,7 +97,7 @@ const updateTransaction = async (user, data, transactionId) => {
 const sortTransactionOfPeriot = async (user, data) => {
   const { error } = await sortTraactionsValidate.validate(data);
   if (error) return { code: 400, message: error.details[0].message };
-  const transactions = await getAllTransactions(user._id);
+  const transactions = await getAllTransactions(user.id);
   if (transactions.length === 0) {
     return { code: 200, message: "You haven't added any transaction yet" };
   }
