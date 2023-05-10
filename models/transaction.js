@@ -12,7 +12,7 @@ const transaction = new Schema({
     required: [true, "Set type for transaction"],
     enum: ["-", "+"],
   },
-  data: {
+  date: {
     type: Date,
     required: [true, "Set data for transaction"],
   },
@@ -42,7 +42,7 @@ const addTransactionSchema = Joi.object({
 const editTransactionSchema = Joi.object({
   category: Joi.string().alphanum(),
   type: Joi.string().valid("+", "-"),
-  data: Joi.date(),
+  date: Joi.date(),
   comment: Joi.string().alphanum().max(25),
   amount: Joi.string(),
 }).or("category", "type", "data", "comment", "amount");

@@ -14,8 +14,8 @@ const {
 // Get all transactions for logged in user
 router.get("/", auth, async (req, res) => {
   try {
-    const { _id } = req.body.user;
-    const { code, message } = await getAllTransactions(_id);
+    const { id } = req.body.user;
+    const { code, message } = await getAllTransactions(id);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
