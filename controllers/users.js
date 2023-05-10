@@ -144,7 +144,6 @@ const setBalance = async (owner) => {
       : (expense = expense + Number(item.amount));
   });
   balance = income - expense;
-  console.log({ balance, income, expense });
   return { balance, income, expense };
 };
 
