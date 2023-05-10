@@ -12,6 +12,7 @@ const {
 } = require("../models/users.js");
 
 const loginHandler = require("../auth/loginHandler");
+const { log } = require("console");
 
 const getUserByEmail = async (email) => {
   const user = User.findOne({ email });
@@ -74,10 +75,12 @@ const loginUser = async (userData) => {
   // if (!user.verify)
   //   return { code: 401, message: "Email has not been verified" };
   const { user, token } = await loginHandler(password, userCheck);
+
   if (!userCheck || !token) {
     return { code: 401, message: "Email or password is wrong" };
   } else {
     await User.findByIdAndUpdate(user._id, { token });
+    console.log(user);
     return {
       code: 200,
       message: {
@@ -86,6 +89,7 @@ const loginUser = async (userData) => {
         name: user.name,
         token,
         balance: user.balance,
+        id: user._id,
       },
     };
   }
@@ -133,6 +137,8 @@ const resendingTheEmail = async (email) => {
   // );
   return { code: 200, message: "Verification email sent" };
 };
+
+const setBalance = async (id) => {};
 
 module.exports = {
   registerUser,

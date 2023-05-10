@@ -38,12 +38,12 @@ const getTransactionById = async (id) => {
 const addTransaction = async (transactionData, user) => {
   const { error } = addTransactionValidate.validate(transactionData);
   if (error) return { code: 400, message: error.details[0].message };
-  const { category, type, data, comment, amount } = transactionData;
+  const { category, type, date, comment, amount } = transactionData;
   try {
     const transaction = new Transaction({
       category,
       type,
-      data,
+      date,
       comment: comment ? comment : "-",
       amount,
       owner: user.id,
@@ -95,7 +95,7 @@ const updateTransaction = async (user, data, transactionId) => {
 };
 
 const sortTransactionOfPeriot = async (user, data) => {
-  const { error } = await sortTraactionsValidate.validate(data);
+  const { error } = sortTraactionsValidate.validate(data);
   if (error) return { code: 400, message: error.details[0].message };
   const transactions = await getAllTransactions(user.id);
   if (transactions.length === 0) {
@@ -106,25 +106,6 @@ const sortTransactionOfPeriot = async (user, data) => {
   );
   return { code: 200, message: sortedTraactions };
 };
-
-// const sortTransactionOfCategory = async (user, data) => {
-//   transactionCategoryList.map((item)=>{})
-// };
-// const getCategories = async () => {
-//     const data = await /// ścieżka do kategorii
-//     if (!data) {
-//         return { code: 404, message: "Categories not found" };
-//     }
-//     return { code: 200, message: "Successful operation" };
-// };
-
-// const getStatistic = async () => {
-//     const data = await
-//     if (!data) {
-//         return { code: 404, message: "Not found!" };
-//     }
-//     return { code: 200, message: "" }
-// }
 
 module.exports = {
   addTransaction,

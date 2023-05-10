@@ -14,8 +14,8 @@ const {
 // Get all transactions for logged in user
 router.get("/", auth, async (req, res) => {
   try {
-    const { id } = req.body.user;
-    const { code, message } = await getAllTransactions(id);
+    const { _id } = req.body.user;
+    const { code, message } = await getAllTransactions(_id);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
@@ -70,23 +70,14 @@ router.get("/periodicTransactions", auth, async (req, res) => {
     res.status(500).json(error);
   }
 });
-// Get all transactions for logged in user by categories
-// router.get("/transaction-categories",  async (req, res) => {
-//     try {
-//         const { code, message } = await getCategories(req.body);
-//         res.status(code).json(message);
-//     } catch (error) {
-//         res.status(500).json(error);
-//     }
-// });
 
-// router.get("/transaction-statistic",  async (req, res) => {
-//     try {
-//         const { code, message } = await getStatistic(req.body);
-//         res.status(code).json(message);
-//     } catch (error) {
-//         res.status(500).json(error);
-//     }
+// router.get("/balance", auth, async (req, res) => {
+//   try {
+//     const { user } = req.body;
+//     const {code,message}= await calculate
+//   } catch (error) {
+//     res.status(500).json(error);
+//   }
 // });
 
 module.exports = router;

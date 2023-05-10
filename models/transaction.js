@@ -13,7 +13,7 @@ const transaction = new Schema({
     enum: ["-", "+"],
   },
   date: {
-    type: Date,
+    type: Number,
     required: [true, "Set data for transaction"],
   },
   comment: {
@@ -35,7 +35,7 @@ const Transaction = mongoose.model("Transactions", transaction);
 const addTransactionSchema = Joi.object({
   category: Joi.string().alphanum().required(),
   type: Joi.string().valid("+", "-").required(),
-  data: Joi.date().required(),
+  date: Joi.date().required(),
   comment: Joi.string().alphanum().min(0).max(25),
   amount: Joi.string().required(),
   owner: Joi.string().required(),
