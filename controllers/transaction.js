@@ -4,7 +4,7 @@ const {
   Transaction,
   editTransactionValidate,
   addTransactionValidate,
-  sortTraactionsValidate,
+  sortTransactionsValidate,
 } = require("../models/transaction.js");
 const category = require("../helpers/category.js");
 
@@ -103,7 +103,7 @@ const updateTransaction = async (user, data, transactionId) => {
 };
 
 const sortTransactionOfPeriot = async (user, periot) => {
-  const { error } = sortTraactionsValidate.validate(periot);
+  const { error } = sortTransactionsValidate.validate(periot);
   if (error) return { code: 400, message: error.details[0].message };
   const { message } = await getAllTransactions(user.id);
   if (message.length === 0) {
