@@ -9,13 +9,15 @@ const {
   removeTransaction,
   updateTransaction,
   sortTransactionOfPeriot,
+  segregatedTransactions,
 } = require("../../controllers/transaction");
+const { setBalance } = require("../../controllers/users");
 
 // Get all transactions for logged in user
 router.get("/", auth, async (req, res) => {
   try {
-    const { _id } = req.body.user;
-    const { code, message } = await getAllTransactions(_id);
+    const { id } = req.body.user;
+    const { code, message } = await getAllTransactions(id);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
@@ -27,6 +29,7 @@ router.post("/", auth, async (req, res) => {
   try {
     const { user, data } = req.body;
     const { code, message } = await addTransaction(data, user);
+    await setBalance(user.id);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
@@ -39,6 +42,7 @@ router.delete("/:transactionId", auth, async (req, res) => {
     const { user } = req.body;
     const { transactionId } = req.params;
     const { code, message } = await removeTransaction(user, transactionId);
+    await setBalance(user.id);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
@@ -55,6 +59,7 @@ router.patch("/:transactionId", auth, async (req, res) => {
       user,
       data
     );
+    await setBalance(user.id);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
@@ -70,23 +75,14 @@ router.get("/periodicTransactions", auth, async (req, res) => {
     res.status(500).json(error);
   }
 });
-// Get all transactions for logged in user by categories
-// router.get("/transaction-categories",  async (req, res) => {
-//     try {
-//         const { code, message } = await getCategories(req.body);
-//         res.status(code).json(message);
-//     } catch (error) {
-//         res.status(500).json(error);
-//     }
-// });
 
-// router.get("/transaction-statistic",  async (req, res) => {
-//     try {
-//         const { code, message } = await getStatistic(req.body);
-//         res.status(code).json(message);
-//     } catch (error) {
-//         res.status(500).json(error);
-//     }
+// router.get("/balance", auth, async (req, res) => {
+//   try {
+//     const { user } = req.body;
+//     const {code,message}= await calculate
+//   } catch (error) {
+//     res.status(500).json(error);
+//   }
 // });
 
 module.exports = router;

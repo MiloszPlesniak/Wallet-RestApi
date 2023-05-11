@@ -1,8 +1,3 @@
-const fs = require("fs/promises");
-// obrabianie obrazków
-const jimp = require("jimp");
-const path = require("path");
-// generowanei id
 const { v4: uuidv4 } = require("uuid");
 const {
   registerValidate,
@@ -12,6 +7,7 @@ const {
 } = require("../models/users.js");
 
 const loginHandler = require("../auth/loginHandler");
+const { getAllTransactions } = require("../controllers/transaction.js");
 
 const getUserByEmail = async (email) => {
   const user = User.findOne({ email });
@@ -74,10 +70,13 @@ const loginUser = async (userData) => {
   // if (!user.verify)
   //   return { code: 401, message: "Email has not been verified" };
   const { user, token } = await loginHandler(password, userCheck);
+
   if (!userCheck || !token) {
     return { code: 401, message: "Email or password is wrong" };
   } else {
     await User.findByIdAndUpdate(user._id, { token });
+    const { balance } = await setBalance(user._id);
+    await User.findByIdAndUpdate(user._id, { balance });
     return {
       code: 200,
       message: {
@@ -85,7 +84,8 @@ const loginUser = async (userData) => {
         passwprd: user.password,
         name: user.name,
         token,
-        balance: user.balance,
+        balance,
+        id: user._id,
       },
     };
   }
@@ -96,13 +96,17 @@ const logoutUser = async (id) => {
   return { code: 204, message: "" };
 };
 
-const currentUser = async (id) => {
-  const user = await User.findById(id);
-  const { email, balance } = user;
+const currentUser = async (owner) => {
+  const { income, expense } = await setBalance(owner);
+  const user = await User.findById(owner.id);
+  const { email, balance, id, name } = user;
   if (!user) {
     return { code: 401, message: "Not authorized1" };
   } else {
-    return { code: 200, message: { email, id, balance } };
+    return {
+      code: 200,
+      message: { email, id, balance, income, expense, name },
+    };
   }
 };
 
@@ -133,6 +137,21 @@ const resendingTheEmail = async (email) => {
   // );
   return { code: 200, message: "Verification email sent" };
 };
+const setBalance = async (owner) => {
+  const { message } = await getAllTransactions(owner);
+
+  let income = 0;
+  let expense = 0;
+  let balance = 0;
+  message.forEach(function (item) {
+    item.type === "+"
+      ? (income = income + Number(item.amount))
+      : (expense = expense + Number(item.amount));
+  });
+  balance = income - expense;
+  await User.findByIdAndUpdate(owner._id, { balance });
+  return { balance, income, expense };
+};
 
 module.exports = {
   registerUser,
@@ -143,4 +162,5 @@ module.exports = {
   resendingTheEmail,
   getUserById,
   getUserByEmail,
+  setBalance,
 };

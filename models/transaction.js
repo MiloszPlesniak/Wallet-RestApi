@@ -12,8 +12,8 @@ const transaction = new Schema({
     required: [true, "Set type for transaction"],
     enum: ["-", "+"],
   },
-  data: {
-    type: Date,
+  date: {
+    type: Number,
     required: [true, "Set data for transaction"],
   },
   comment: {
@@ -33,26 +33,27 @@ const transaction = new Schema({
 const Transaction = mongoose.model("Transactions", transaction);
 
 const addTransactionSchema = Joi.object({
-  category: Joi.string().alphanum().required(),
+  category: Joi.string(),
   type: Joi.string().valid("+", "-").required(),
-  data: Joi.date().required(),
-  comment: Joi.string().alphanum().max(25),
+  date: Joi.number().required(),
+  comment: Joi.string().min(0).max(25),
   amount: Joi.string().required(),
+  owner: Joi.string().required(),
 });
 const editTransactionSchema = Joi.object({
   category: Joi.string().alphanum(),
   type: Joi.string().valid("+", "-"),
-  data: Joi.date(),
+  dat: Joi.date(),
   comment: Joi.string().alphanum().max(25),
   amount: Joi.string(),
 }).or("category", "type", "data", "comment", "amount");
-const sortTraactionsSchema = Joi.object({
-  start: Joi.date(),
-  end: Joi.date(),
+const sortTransactionsSchema = Joi.object({
+  year: Joi.number(),
+  month: Joi.number(),
 });
 module.exports = {
   Transaction,
   editTransactionValidate: editTransactionSchema,
   addTransactionValidate: addTransactionSchema,
-  sortTraactionsValidate: sortTraactionsSchema,
+  sortTransactionsValidate: sortTransactionsSchema,
 };

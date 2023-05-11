@@ -1,12 +1,12 @@
-// const fs = require("fs/promises");
-const { getUserById } = require("../controllers/users.js");
-// const { v4: uuidv4 } = require("uuid");
+// const { getUserById } = require("../controllers/users.js");
+
 const {
   Transaction,
   editTransactionValidate,
   addTransactionValidate,
-  sortTraactionsValidate,
+  sortTransactionsValidate,
 } = require("../models/transaction.js");
+const category = require("../helpers/category.js");
 
 // const transactionCategoryList = [
 //   { MainExpenses: 0 },
@@ -19,11 +19,11 @@ const {
 //   { Leisure: 0 },
 // ];
 
-const getAllTransactions = async (ownerId) => {
-  const allTransaction = await Transaction.find(ownerId);
-  if (allTransaction.length === 0) {
-    return { code: 200, message: "You haven't added any transaction yet" };
-  }
+const getAllTransactions = async (owner) => {
+  const allTransaction = await Transaction.find({ owner });
+  // if (allTransaction.length === 0) {
+  //   return { code: 200, message: "You haven't added any transaction yet" };
+  // }
   return { code: 200, message: allTransaction };
 };
 
@@ -38,18 +38,26 @@ const getTransactionById = async (id) => {
 const addTransaction = async (transactionData, user) => {
   const { error } = addTransactionValidate.validate(transactionData);
   if (error) return { code: 400, message: error.details[0].message };
-  const { category, type, data, comment, amount } = transactionData;
+  const { category, type, date, comment, amount } = transactionData;
   try {
     const transaction = new Transaction({
       category,
       type,
-      data,
+      date,
       comment: comment ? comment : "-",
       amount,
-      owner: user._id,
+      owner: user.id,
     });
     transaction.save();
-    return { code: 201, message: transaction };
+
+    return {
+      code: 201,
+      message: {
+        transaction,
+        balanceAfter:
+          type === "-" ? user.balance - amount : user.balance + amount,
+      },
+    };
   } catch (error) {
     return { code: 500, message: error };
   }
@@ -59,27 +67,27 @@ const addTransaction = async (transactionData, user) => {
 
 const removeTransaction = async (user, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  const owner = await getUserById(transaction._id);
+  // const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  if (owner._id !== user._id) {
-    return { code: 400, message: "You are not the owner of this contact" };
-  }
+  // if (owner.id !== user.id) {
+  //   return { code: 400, message: "You are not the owner of this contact" };
+  // }
 
   await Transaction.findOneAndDelate({ id });
-  return { code: 200, message: "Transaction removed" };
+  return { code: 200, message: transactionId };
 };
 
 const updateTransaction = async (user, data, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  const owner = await getUserById(transaction._id);
+  // const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  if (owner._id !== user._id) {
-    return { code: 400, message: "You are not the owner of this contact" };
-  }
+  // if (owner.id !== user.id) {
+  //   return { code: 400, message: "You are not the owner of this contact" };
+  // }
   const { error } = editTransactionValidate.validate(data);
   if (error) return { code: 400, message: error.details[0].message };
 
@@ -94,37 +102,37 @@ const updateTransaction = async (user, data, transactionId) => {
   }
 };
 
-const sortTransactionOfPeriot = async (user, data) => {
-  const { error } = await sortTraactionsValidate.validate(data);
+const sortTransactionOfPeriot = async (user, periot) => {
+  const { error } = sortTransactionsValidate.validate(periot);
   if (error) return { code: 400, message: error.details[0].message };
-  const transactions = await getAllTransactions(user._id);
-  if (transactions.length === 0) {
+  const { message } = await getAllTransactions(user.id);
+  if (message.length === 0) {
     return { code: 200, message: "You haven't added any transaction yet" };
   }
-  const sortedTraactions = transactions.filter(
-    (item) => data.start <= item.data && item.data <= data.end
+  const { month, year } = periot;
+  const dateStart = new Date(year, month - 1).getTime();
+  const dataEnd = new Date(year, month).getTime();
+
+  const sortedTraactions = message.filter(
+    (item) => dateStart <= item.date && item.date <= dataEnd
   );
-  return { code: 200, message: sortedTraactions };
+  console.log(sortedTraactions);
+  const segCat = await segregatedTransactions(sortedTraactions);
+
+  return { code: 200, message: segCat };
 };
 
-// const sortTransactionOfCategory = async (user, data) => {
-//   transactionCategoryList.map((item)=>{})
-// };
-// const getCategories = async () => {
-//     const data = await /// ścieżka do kategorii
-//     if (!data) {
-//         return { code: 404, message: "Categories not found" };
-//     }
-//     return { code: 200, message: "Successful operation" };
-// };
-
-// const getStatistic = async () => {
-//     const data = await
-//     if (!data) {
-//         return { code: 404, message: "Not found!" };
-//     }
-//     return { code: 200, message: "" }
-// }
+const segregatedTransactions = async (transaction) => {
+  const editedCategory = category;
+  editedCategory.map((cat) => {
+    transaction.forEach((trans) => {
+      if (trans.category === cat.name) {
+        cat.amount = cat.amount + trans.amount;
+      }
+    });
+  });
+  return editedCategory;
+};
 
 module.exports = {
   addTransaction,
