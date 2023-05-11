@@ -6,6 +6,7 @@ const {
   addTransactionValidate,
   sortTraactionsValidate,
 } = require("../models/transaction.js");
+const category = require("../helpers/category.js");
 
 // const transactionCategoryList = [
 //   { MainExpenses: 0 },
@@ -48,7 +49,15 @@ const addTransaction = async (transactionData, user) => {
       owner: user.id,
     });
     transaction.save();
-    return { code: 201, message: transaction };
+
+    return {
+      code: 201,
+      message: {
+        transaction,
+        balanceAfter:
+          type === "-" ? user.balance - amount : user.balance + amount,
+      },
+    };
   } catch (error) {
     return { code: 500, message: error };
   }
@@ -93,17 +102,36 @@ const updateTransaction = async (user, data, transactionId) => {
   }
 };
 
-const sortTransactionOfPeriot = async (user, data) => {
-  const { error } = sortTraactionsValidate.validate(data);
+const sortTransactionOfPeriot = async (user, periot) => {
+  const { error } = sortTraactionsValidate.validate(periot);
   if (error) return { code: 400, message: error.details[0].message };
-  const transactions = await getAllTransactions(user.id);
-  if (transactions.length === 0) {
+  const { message } = await getAllTransactions(user.id);
+  if (message.length === 0) {
     return { code: 200, message: "You haven't added any transaction yet" };
   }
-  const sortedTraactions = transactions.filter(
-    (item) => data.start <= item.data && item.data <= data.end
+  const { month, year } = periot;
+  const dateStart = new Date(year, month - 1).getTime();
+  const dataEnd = new Date(year, month).getTime();
+
+  const sortedTraactions = message.filter(
+    (item) => dateStart <= item.date && item.date <= dataEnd
   );
-  return { code: 200, message: sortedTraactions };
+  console.log(sortedTraactions);
+  const segCat = await segregatedTransactions(sortedTraactions);
+
+  return { code: 200, message: segCat };
+};
+
+const segregatedTransactions = async (transaction) => {
+  const editedCategory = category;
+  editedCategory.map((cat) => {
+    transaction.forEach((trans) => {
+      if (trans.category === cat.name) {
+        cat.amount = cat.amount + trans.amount;
+      }
+    });
+  });
+  return editedCategory;
 };
 
 module.exports = {

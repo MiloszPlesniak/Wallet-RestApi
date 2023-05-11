@@ -75,7 +75,8 @@ const loginUser = async (userData) => {
     return { code: 401, message: "Email or password is wrong" };
   } else {
     await User.findByIdAndUpdate(user._id, { token });
-    const { balance, income, expense } = await setBalance(user._id);
+    const { balance } = await setBalance(user._id);
+    await User.findByIdAndUpdate(user._id, { balance });
     return {
       code: 200,
       message: {
@@ -95,13 +96,17 @@ const logoutUser = async (id) => {
   return { code: 204, message: "" };
 };
 
-const currentUser = async (id) => {
-  const user = await User.findById(id);
-  const { email, balance } = user;
+const currentUser = async (owner) => {
+  const { income, expense } = await setBalance(owner);
+  const user = await User.findById(owner.id);
+  const { email, balance, id, name } = user;
   if (!user) {
     return { code: 401, message: "Not authorized1" };
   } else {
-    return { code: 200, message: { email, id, balance } };
+    return {
+      code: 200,
+      message: { email, id, balance, income, expense, name },
+    };
   }
 };
 
@@ -144,6 +149,7 @@ const setBalance = async (owner) => {
       : (expense = expense + Number(item.amount));
   });
   balance = income - expense;
+  await User.findByIdAndUpdate(owner._id, { balance });
   return { balance, income, expense };
 };
 
@@ -156,4 +162,5 @@ module.exports = {
   resendingTheEmail,
   getUserById,
   getUserByEmail,
+  setBalance,
 };

@@ -33,10 +33,10 @@ const transaction = new Schema({
 const Transaction = mongoose.model("Transactions", transaction);
 
 const addTransactionSchema = Joi.object({
-  category: Joi.string().alphanum().required(),
+  category: Joi.string(),
   type: Joi.string().valid("+", "-").required(),
-  date: Joi.date().required(),
-  comment: Joi.string().alphanum().min(0).max(25),
+  date: Joi.number().required(),
+  comment: Joi.string().min(0).max(25),
   amount: Joi.string().required(),
   owner: Joi.string().required(),
 });
@@ -48,8 +48,8 @@ const editTransactionSchema = Joi.object({
   amount: Joi.string(),
 }).or("category", "type", "data", "comment", "amount");
 const sortTraactionsSchema = Joi.object({
-  start: Joi.date(),
-  end: Joi.date(),
+  year: Joi.number(),
+  month: Joi.number(),
 });
 module.exports = {
   Transaction,

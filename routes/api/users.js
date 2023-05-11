@@ -22,10 +22,8 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
- 
-    const { code, message } = await loginUser(req.body);
-    res.status(code).json(message);
- 
+  const { code, message } = await loginUser(req.body);
+  res.status(code).json(message);
 });
 
 router.get("/logout", auth, async (req, res) => {
@@ -40,7 +38,7 @@ router.get("/logout", auth, async (req, res) => {
 
 router.get("/current", auth, async (req, res) => {
   try {
-    const { code, message } = await currentUser(req.body.user.id);
+    const { code, message } = await currentUser(req.body.user);
     res.status(code).json(message);
   } catch (error) {
     res.status(500).json(error);
