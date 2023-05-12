@@ -47,7 +47,7 @@ const editTransactionSchema = Joi.object({
   comment: Joi.string().alphanum().max(25),
   amount: Joi.string(),
 }).or("category", "type", "data", "comment", "amount");
-const sortTraactionsSchema = Joi.object({
+const sortTransactionsSchema = Joi.object({
   year: Joi.number(),
   month: Joi.number(),
 });
@@ -55,5 +55,5 @@ module.exports = {
   Transaction,
   editTransactionValidate: editTransactionSchema,
   addTransactionValidate: addTransactionSchema,
-  sortTraactionsValidate: sortTraactionsSchema,
+  sortTransactionsValidate: sortTransactionsSchema,
 };
