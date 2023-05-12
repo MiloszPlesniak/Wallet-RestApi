@@ -54,8 +54,7 @@ const addTransaction = async (transactionData, user) => {
       code: 201,
       message: {
         transaction,
-        balanceAfter:
-          type === "-" ? user.balance - amount : user.balance + amount,
+        balanceAfter: type === "-" ? user.balance - amount : user.balance + amount,
       },
     };
   } catch (error) {
@@ -75,7 +74,7 @@ const removeTransaction = async (user, transactionId) => {
   //   return { code: 400, message: "You are not the owner of this contact" };
   // }
 
-  await Transaction.findOneAndDelate({ id });
+  await Transaction.findOneAndDelate({ transactionId });
   return { code: 200, message: transactionId };
 };
 
@@ -92,10 +91,7 @@ const updateTransaction = async (user, data, transactionId) => {
   if (error) return { code: 400, message: error.details[0].message };
 
   try {
-    const changeTransaction = await Transaction.findByIdAndUpdate(
-      transactionId,
-      data
-    );
+    const changeTransaction = await Transaction.findByIdAndUpdate(transactionId, data);
     return { code: 200, message: changeTransaction };
   } catch (error) {
     return { code: 500, message: error };
@@ -113,9 +109,7 @@ const sortTransactionOfPeriot = async (user, periot) => {
   const dateStart = new Date(year, month - 1).getTime();
   const dataEnd = new Date(year, month).getTime();
 
-  const sortedTraactions = message.filter(
-    (item) => dateStart <= item.date && item.date <= dataEnd
-  );
+  const sortedTraactions = message.filter((item) => dateStart <= item.date && item.date <= dataEnd);
   console.log(sortedTraactions);
   const segCat = await segregatedTransactions(sortedTraactions);
 
