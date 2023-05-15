@@ -45,10 +45,6 @@ const registerUser = async (userData) => {
   try {
     const user = await createUser(email, password, name);
 
-    // await sendEmail(
-    //     email,
-    //     `http://localhost:3000/api/users/verify/${user.verificationToken}`
-    // );
     return {
       code: 201,
       message: { email: user.email, name: user.name, password: user.password },
@@ -67,8 +63,6 @@ const loginUser = async (userData) => {
   const { email, password } = userData;
 
   const userCheck = await getUserByEmail(email);
-  // if (!user.verify)
-  //   return { code: 401, message: "Email has not been verified" };
   const { user, token } = await loginHandler(password, userCheck);
 
   if (!userCheck || !token) {
@@ -131,10 +125,6 @@ const resendingTheEmail = async (email) => {
   if (!user) return { code: 404, message: "User not found" };
   if (user.verify)
     return { code: 400, message: "Verification has already been passed" };
-  // await sendEmail(
-  //     email,
-  //     `http://localhost:3000/api/users/verify/${user.verificationToken}`
-  // );
   return { code: 200, message: "Verification email sent" };
 };
 const setBalance = async (owner) => {
