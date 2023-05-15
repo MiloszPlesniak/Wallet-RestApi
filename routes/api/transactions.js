@@ -9,11 +9,9 @@ const {
   removeTransaction,
   updateTransaction,
   sortTransactionOfPeriot,
-  segregatedTransactions,
 } = require("../../controllers/transaction");
 const { setBalance } = require("../../controllers/users");
 
-// Get all transactions for logged in user
 router.get("/", auth, async (req, res) => {
   try {
     const { id } = req.body.user;
@@ -24,7 +22,6 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// Create new transaction for logged in user
 router.post("/", auth, async (req, res) => {
   try {
     const { user, data } = req.body;
@@ -36,7 +33,6 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// Remove transaction
 router.delete("/:transactionId", auth, async (req, res) => {
   try {
     const { user } = req.body;
@@ -49,7 +45,6 @@ router.delete("/:transactionId", auth, async (req, res) => {
   }
 });
 
-// Update transactions
 router.patch("/:transactionId", auth, async (req, res) => {
   try {
     const { user, data } = req.body;
@@ -75,14 +70,5 @@ router.get("/periodicTransactions", auth, async (req, res) => {
     res.status(500).json(error);
   }
 });
-
-// router.get("/balance", auth, async (req, res) => {
-//   try {
-//     const { user } = req.body;
-//     const {code,message}= await calculate
-//   } catch (error) {
-//     res.status(500).json(error);
-//   }
-// });
 
 module.exports = router;

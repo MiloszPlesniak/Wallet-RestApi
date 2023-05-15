@@ -1,5 +1,3 @@
-// const { getUserById } = require("../controllers/users.js");
-
 const {
   Transaction,
   editTransactionValidate,
@@ -8,22 +6,9 @@ const {
 } = require("../models/transaction.js");
 const category = require("../helpers/category.js");
 
-// const transactionCategoryList = [
-//   { MainExpenses: 0 },
-//   { Products: 0 },
-//   { Car: 0 },
-//   { SelfCare: 0 },
-//   { ChildCare: 0 },
-//   { HouseholdProducts: 0 },
-//   { Education: 0 },
-//   { Leisure: 0 },
-// ];
-
 const getAllTransactions = async (owner) => {
   const allTransaction = await Transaction.find({ owner });
-  // if (allTransaction.length === 0) {
-  //   return { code: 200, message: "You haven't added any transaction yet" };
-  // }
+
   return { code: 200, message: allTransaction };
 };
 
@@ -54,7 +39,8 @@ const addTransaction = async (transactionData, user) => {
       code: 201,
       message: {
         transaction,
-        balanceAfter: type === "-" ? user.balance - amount : user.balance + amount,
+        balanceAfter:
+          type === "-" ? user.balance - amount : user.balance + amount,
       },
     };
   } catch (error) {
@@ -62,17 +48,11 @@ const addTransaction = async (transactionData, user) => {
   }
 };
 
-// const updateTransaction = ;
-
 const removeTransaction = async (user, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  // const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  // if (owner.id !== user.id) {
-  //   return { code: 400, message: "You are not the owner of this contact" };
-  // }
 
   await Transaction.findOneAndDelate({ transactionId });
   return { code: 200, message: transactionId };
@@ -80,18 +60,18 @@ const removeTransaction = async (user, transactionId) => {
 
 const updateTransaction = async (user, data, transactionId) => {
   const transaction = await getTransactionById(transactionId);
-  // const owner = await getUserById(transaction.id);
   if (!transaction) {
     return { code: 404, message: "Not found!" };
   }
-  // if (owner.id !== user.id) {
-  //   return { code: 400, message: "You are not the owner of this contact" };
-  // }
+
   const { error } = editTransactionValidate.validate(data);
   if (error) return { code: 400, message: error.details[0].message };
 
   try {
-    const changeTransaction = await Transaction.findByIdAndUpdate(transactionId, data);
+    const changeTransaction = await Transaction.findByIdAndUpdate(
+      transactionId,
+      data
+    );
     return { code: 200, message: changeTransaction };
   } catch (error) {
     return { code: 500, message: error };
@@ -109,8 +89,9 @@ const sortTransactionOfPeriot = async (user, periot) => {
   const dateStart = new Date(year, month - 1).getTime();
   const dataEnd = new Date(year, month).getTime();
 
-  const sortedTraactions = message.filter((item) => dateStart <= item.date && item.date <= dataEnd);
-  console.log(sortedTraactions);
+  const sortedTraactions = message.filter(
+    (item) => dateStart <= item.date && item.date <= dataEnd
+  );
   const segCat = await segregatedTransactions(sortedTraactions);
 
   return { code: 200, message: segCat };
